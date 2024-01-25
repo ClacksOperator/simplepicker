@@ -4,6 +4,14 @@ interface SimplePickerOpts {
     compactMode?: boolean;
     disableTimeSection?: boolean;
     selectedDate?: Date;
+    globalization?: Globalization;
+}
+interface Globalization {
+    months?: string[];
+    days?: string[];
+    shortDays?: string[];
+    cancel?: string;
+    ok?: string;
 }
 declare type HandlerFunction = (...args: unknown[]) => void;
 interface EventHandlers {
@@ -32,6 +40,9 @@ declare class SimplePicker {
     private $cancel;
     private $ok;
     private $displayDateElements;
+    private $dayNames;
+    private $monthNames;
+    private $htmlTemplate;
     constructor(arg1?: HTMLElement | string | SimplePickerOpts, arg2?: SimplePickerOpts);
     initElMethod(el: any): void;
     init(el: HTMLElement, opts: SimplePickerOpts): void;
@@ -53,5 +64,6 @@ declare class SimplePicker {
     close(): void;
     on(event: SimplePickerEvent, handler: HandlerFunction): void;
     toogleDisplayFade(): void;
+    globalize(globalization: Globalization): void;
 }
 export = SimplePicker;

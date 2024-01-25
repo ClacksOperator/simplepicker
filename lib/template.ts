@@ -15,7 +15,7 @@ export const htmlTemplate = `
         <div class="simplepicker-month-and-year"></div>
         <div class="simplepicker-date"></div>
         <div class="simplepicker-select-pane">
-          <button type="button" class="simplepicker-icon simplepicker-icon-calender active" title="Select date from calender!"></button>
+          <button type="button" class="simplepicker-icon simplepicker-icon-calender active" title="Select date from calendar!"></button>
           <div class="simplepicker-time">12:00 PM</div>
           <button type="button" class="simplepicker-icon simplepicker-icon-time" title="Select time"></button>
         </div>
