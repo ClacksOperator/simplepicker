@@ -7,6 +7,15 @@ interface SimplePickerOpts {
   compactMode?: boolean;
   disableTimeSection?: boolean;
   selectedDate?: Date;
+  globalization?: Globalization;
+}
+
+interface Globalization {
+  months?: string[];
+  days?: string[];
+  shortDays?: string[];
+  cancel?: string;
+  ok?: string;
 }
 
 const validListeners = [
@@ -20,6 +29,7 @@ interface EventHandlers {
 }
 
 const today = new Date();
+const weekHeaderRow = "<tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr>";
 class SimplePicker {
   selectedDate: Date;
   $simplePicker: HTMLElement;
@@ -44,6 +54,9 @@ class SimplePicker {
   private $cancel: HTMLElement;
   private $ok: HTMLElement;
   private $displayDateElements: HTMLElement[];
+  private $dayNames: string[];
+  private $monthNames: string[];
+  private $htmlTemplate: string;
 
   constructor(arg1?: HTMLElement | string | SimplePickerOpts, arg2?: SimplePickerOpts) {
     let el: HTMLElement | undefined = undefined;
@@ -68,6 +81,14 @@ class SimplePicker {
 
     if (!opts) {
       opts = {};
+    }
+
+    this.$htmlTemplate = htmlTemplate;
+    if (opts.globalization) {
+      this.globalize(opts.globalization);
+    } else {
+      this.$monthNames = dateUtil.months;
+      this.$dayNames = dateUtil.days;
     }
 
     this.selectedDate = new Date();
@@ -169,7 +190,7 @@ class SimplePicker {
 
   injectTemplate(el: HTMLElement) {
     const $template = document.createElement('template');
-    $template.innerHTML = htmlTemplate;
+    $template.innerHTML = this.$htmlTemplate;
     el.appendChild($template.content.cloneNode(true));
   }
 
@@ -181,8 +202,8 @@ class SimplePicker {
   }
 
   updateDateComponents(date: Date) {
-    const day = dateUtil.days[date.getDay()];
-    const month = dateUtil.months[date.getMonth()];
+    const day = this.$dayNames[date.getDay()];
+    const month = this.$monthNames[date.getMonth()];
     const year = date.getFullYear();
     const monthAndYear = month + ' ' + year;
 
@@ -242,7 +263,7 @@ class SimplePicker {
     }
 
     const [ monthName, year ] = $monthAndYear.innerHTML.split(' ');
-    const month = dateUtil.months.indexOf(monthName);
+    const month = this.$monthNames.indexOf(monthName);
     let timeComponents = $time.innerHTML.split(':');
     let hours = +timeComponents[0];
     let [ minutes, meridium ] = timeComponents[1].split(' ');
@@ -431,6 +452,43 @@ class SimplePicker {
     this.$displayDateElements.forEach($el => {
       $el.classList.toggle('simplepicker-fade');
     });
+  }
+
+  globalize(globalization: Globalization) {
+    if (globalization.months && globalization.months.length === 12) {
+      this.$monthNames = globalization.months;
+    } else {
+      this.$monthNames = dateUtil.months;
+    }
+
+    if (globalization.days && globalization.days.length === 7) {
+      this.$dayNames = globalization.days;
+    } else {
+      this.$dayNames = dateUtil.days;
+    }
+
+    if (globalization.shortDays && globalization.shortDays.length === 7) {
+      var headerRow = `<tr><th>${globalization.shortDays[0]}</th>` +
+                  `<th>${globalization.shortDays[1]}</th>` +
+                  `<th>${globalization.shortDays[2]}</th>` +
+                  `<th>${globalization.shortDays[3]}</th>` +
+                  `<th>${globalization.shortDays[4]}</th>` +
+                  `<th>${globalization.shortDays[5]}</th>` +
+                  `<th>${globalization.shortDays[6]}</th></tr>`;
+      this.$htmlTemplate = this.$htmlTemplate.replace(weekHeaderRow, headerRow);
+   }
+
+    if (globalization.cancel && globalization.cancel.length > 0) {
+      var templateCancel = `<button type="button" class="simplepicker-cancel-btn simplepicker-btn" title="Cancel">Cancel</button>`;
+      var cancelButton = `<button type="button" class="simplepicker-cancel-btn simplepicker-btn" title="Cancel">${globalization.cancel}</button>`;
+      this.$htmlTemplate = this.$htmlTemplate.replace(templateCancel, cancelButton);
+    }
+
+    if (globalization.ok && globalization.ok.length > 0) {
+      var templateOk = `<button type="button" class="simplepicker-ok-btn simplepicker-btn" title="OK">OK</button>`;
+      var okButton = `<button type="button" class="simplepicker-ok-btn simplepicker-btn" title="OK">${globalization.ok}</button>`;
+      this.$htmlTemplate = this.$htmlTemplate.replace(templateOk, okButton);
+    }
   }
 }
 
